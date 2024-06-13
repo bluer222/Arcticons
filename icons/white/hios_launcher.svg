@@ -2,14 +2,14 @@
 <svg id="b" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 48 48">
   <defs>
     <style>
-      .cls-1 {
+      .cls-1 {stroke-width:2px;
         fill: none;
         stroke:#fff;
         stroke-linecap: round;
         stroke-linejoin: round;
       }
 
-      .cls-2 {
+      .cls-2 {stroke-width:2px;
         fill:#fff;
       }
     </style>

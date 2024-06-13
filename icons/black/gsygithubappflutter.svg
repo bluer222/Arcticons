@@ -28,7 +28,7 @@
      inkscape:window-maximized="1"
      inkscape:current-layer="svg10" /><defs
      id="defs6"><style
-       id="style2">.a{fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;}</style><style
+       id="style2">.a{stroke-width:2px;stroke-width:2px;fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;}</style><style
        id="style4" /></defs><path
      style="fill:none;stroke:#000;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0.5"
      d="M 15.065341,32.848468 C 12.429039,30.940147 9.053282,28.839419 9.1122326,21.260238 9.1711936,13.681059 15.16074,6.8552867 23.411351,6.8607744 c 8.250617,0.00537 15.133864,5.8096006 15.227313,13.6970546 0.09355,7.887448 -2.084286,9.196197 -5.900422,12.217791"
