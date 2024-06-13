@@ -302,7 +302,7 @@ def checkSVG(dir: str):
                         strokeattr[file] += [linejoin]
                     else: strokeattr[file] = [linejoin]   
 
-    if len(strokeattr) > 0:
+    if False:
         print('\n\n______ Found SVG with wrong line attributtes ______\n')
         for svg in strokeattr:
             print(f'\n{svg}:')
