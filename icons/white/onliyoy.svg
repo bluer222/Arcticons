@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   id="a"
+   viewBox="0 0 48 48"
+   version="1.1"
+   sodipodi:docname="antiyoy.svg"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="17.666667"
+     inkscape:cx="24"
+     inkscape:cy="19.018868"
+     inkscape:window-width="1907"
+     inkscape:window-height="1040"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="a" />
+  <defs
+     id="defs1">
+    <style
+       id="style1">.m{stroke-width:2.0px;fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round;}</style>
+  </defs>
+  <path
+     id="c"
+     class="m"
+     d="M38.5006,5.4992H9.4994c-2.2001,0-4.0002,1.8001-4.0002,4.0002v29.0012c0,2.2001,1.8001,4.0002,4.0002,4.0002h29.0012c2.2001,0,4.0002-1.8001,4.0002-4.0002V9.4994c0-2.2001-1.8001-4.0002-4.0002-4.0002Z" />
+  <path
+     id="d"
+     class="m"
+     d="M 21.7256,5.5048 20.8895,6.9987 H 17.643 l -1.5809,2.7382 1.4796,2.5627 h 3.2232 l 1.6401,2.8408 h 3.1345 l 1.5389,2.6655 -1.5971,2.7663 h -3.15 l -1.6648,2.8836 1.573,2.7246 -1.4296,2.4762 h -3.3005 l -1.7572,3.0436 H 12.9134 L 11.2912,28.8905 H 8.0243 L 6.4705,31.5817 H 5.5002" />
+  <path
+     id="e"
+     class="m"
+     d="m 15.752,31.7002 1.6385,2.8379 h 3.5101 l 1.6012,2.7733 -1.6106,2.7896 1.3482,2.399" />
+  <path
+     id="f"
+     class="m"
+     d="m 20.8098,28.6566 1.6134,2.7946 h 3.0034 l 1.7684,3.063 -1.6442,2.8479 -3.0491,-0.0507" />
+  <path
+     id="g"
+     class="m"
+     d="m 22.2394,26.1804 h 3.3863 l 1.6833,-2.9156 h 2.9257 l 1.6217,-2.8089 h 3.1562 l 1.5658,-2.712 h 3.387 l 2.5336,-4.4257" />
+  <path
+     id="h"
+     class="m"
+     d="m 27.195,34.5141 h 2.8345 l 1.6925,-2.9316 h 3.3962 l 1.6586,-2.8728 h 3.6191 l 2.104,-3.6857" />
+  <path
+     id="i"
+     class="m"
+     d="m 40.3961,28.7097 1.7764,3.0768 -1.9529,2.4549 1.8901,3.0379" />
+  <path
+     id="j"
+     class="m"
+     d="m 25.4812,20.5723 1.8278,2.6926" />
+  <path
+     id="k"
+     class="m"
+     d="m 25.5508,37.362 1.5406,2.6683 h 3.0377 l 1.8165,-3.1462 h 3.1221 L 36.777,39.8447 35.2783,42.5" />
+  <path
+     id="l"
+     class="m"
+     d="m 36.7769,39.8446 h 3.1146 l 2.2182,-2.5653" />
+  <text
+     xml:space="preserve"
+     style="font-size:32px;fill:#fff;fill-opacity:1;fill-rule:nonzero;stroke-width:0.4;stroke-dasharray:none;stroke:#000000;stroke-opacity:1"
+     x="14.912"
+     y="35.584"
+     id="text1"><tspan
+       sodipodi:role="line"
+       id="tspan1"
+       x="14.912"
+       y="35.584">2</tspan></text>
+</svg>
