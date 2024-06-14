@@ -1999,6 +1999,9 @@
 	<item component="ComponentInfo{yio.tro.antiyoy.android/yio.tro.antiyoy.AndroidLauncher}" drawable="antiyoy"/>
 	<item component="ComponentInfo{yio.tro.antiyoy.android/yio.tro.antiyoy.android.AndroidLauncher}" drawable="antiyoy"/>
 
+	<!-- Antiyoy online -->
+	<item component="ComponentInfo{yio.tro.onliyoy/yio.tro.onliyoy.AndroidLauncher}" drawable="onliyoy"/>
+
 	<!-- ANTON -->
 	<item component="ComponentInfo{com.solocode.anton/com.solocode.anton.MainActivity}" drawable="anton"/>
 
@@ -30162,6 +30165,9 @@
 
 	<!-- Terraria -->
 	<item component="ComponentInfo{com.and.games505.TerrariaPaid/com.unity3d.player.UnityPlayerActivity}" drawable="terraria"/>
+
+	<!-- Territorial.io -->
+	<item component="ComponentInfo{territorial.io/com.example.territorialio.MainActivity}" drawable="territorial_io"/>
 
 	<!-- Tesco -->
 	<item component="ComponentInfo{com.tesco.grocery.view/com.tesco.mobile.titan.splash.view.SplashActivity}" drawable="tesco_grocery"/>
