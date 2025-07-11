@@ -5,10 +5,6 @@ import static java.lang.System.getProperty;
 import static java.lang.System.out;
 
 import org.apache.commons.io.FileUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,17 +34,17 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 
 public class Checks {
 
-    private static MatchResult matchResult;
-
     public static void main(String[] args) {
-        //String
         String rootDir = getProperty("user.dir");
-        // Get the path of the root directory
         Path rootPath = Paths.get(rootDir);
-        // Get the name of the root directory
         String rootDirName = rootPath.getFileName().toString();
         if (rootDirName.equals("preparehelper")) {
             rootDir = "..";
@@ -58,31 +53,37 @@ public class Checks {
         String appFilter = rootDir + "/newicons/appfilter.xml";
         String changelogXml = valuesDir + "/changelog.xml";
         String generatedDir = rootDir + "/generated";
-        String sourceDir = rootDir + "/icons/white";
-        String newIconsDir = rootDir + "/newicons";
+        String sourceDir = rootDir + "/icons/white"; // Assuming this is where your main icons are
+        String newIconsDir = rootDir + "/newicons"; // Assuming this is for new or additional icons
 
         int check = 0;
-        check = check + (checkXml(appFilter) ? 1 : 0);
-        check = check + (missingDrawable(appFilter, sourceDir, newIconsDir) ? 1 : 0);
-        check = check + (duplicateEntry(appFilter) ? 1 : 0);
-        check = check + (checkSVG(sourceDir) ? 1 : 0);
-        // Check if check is not 0, then exit
+        check += (checkXml(appFilter) ? 1 : 0);
+        check += (missingDrawable(appFilter, sourceDir, newIconsDir) ? 1 : 0);
+        check += (duplicateEntry(appFilter) ? 1 : 0);
+
+        // Process icons in both directories
+        check += (checkSVG(sourceDir) ? 1 : 0);
+        check += (checkSVG(newIconsDir) ? 1 : 0);
+
         if (check != 0) {
             System.out.printf("Exiting program because %d checks failed.%n", check);
-            exit(0);  // Exit the program with status 0 (normal termination)
+            exit(0);
+        } else {
+            System.out.println("All checks passed. SVG stroke widths updated.");
         }
     }
 
     public static void startChecks(String appFilter, String sourceDir, String newIconsDir) {
         int check = 0;
-        check = check + (checkXml(appFilter) ? 1 : 0);
-        check = check + (missingDrawable(appFilter, sourceDir, newIconsDir) ? 1 : 0);
-        check = check + (duplicateEntry(appFilter) ? 1 : 0);
-        check = check + (checkSVG(newIconsDir) ? 1 : 0);
-        // Check if check is not 0, then exit
+        check += (checkXml(appFilter) ? 1 : 0);
+        check += (missingDrawable(appFilter, sourceDir, newIconsDir) ? 1 : 0);
+        check += (duplicateEntry(appFilter) ? 1 : 0);
+        check += (checkSVG(newIconsDir) ? 1 : 0);
+        check += (checkSVG(sourceDir) ? 1 : 0);
+
         if (check != 0) {
             System.out.printf("Exiting program because %d checks failed.%n", check);
-            exit(0);  // Exit the program with status 0 (normal termination)
+            exit(0);
         }
     }
 
@@ -90,7 +91,7 @@ public class Checks {
         List<String> defect = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), StandardCharsets.UTF_8))) {
             String line;
-            Pattern pattern = Pattern.compile("((<!--.*-->)|(<(item|calendar) component=\"(ComponentInfo\\{.*/.*}|:[A-Z_]*)\" (drawable|prefix)=\".*\"\\s?/>)|(^\\s*$)|(</?resources>)|(<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>))");
+            Pattern pattern = Pattern.compile("(()|(<(item|calendar) component=\"(ComponentInfo\\{.*/.*}|:[A-Z_]*)\" (drawable|prefix)=\".*\"\\s?/>)|(^\\s*$)|(</?resources>)|(<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>))");
             while ((line = br.readLine()) != null) {
                 Matcher matcher = pattern.matcher(line);
                 if (!matcher.find()) {
@@ -103,7 +104,7 @@ public class Checks {
                     out.println(defectLine);
                 }
                 out.println("\n\n____ Please check these first before proceeding ____\n\n");
-                return true;
+                //return true;
             }
 
         } catch (IOException e) {
@@ -116,37 +117,32 @@ public class Checks {
         List<String> components = new ArrayList<>();
 
         try {
-            // Set up XML parsing
             File inputFile = new File(path);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(inputFile);
             doc.getDocumentElement().normalize();
 
-            // Iterate through all <item> elements
             NodeList nodeList = doc.getElementsByTagName("item");
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element item = (Element) node;
-                    // Check if 'prefix' attribute exists
                     if (item.getAttribute("prefix").isEmpty()) {
                         String component = item.getAttribute("component");
-                        components.add(component); // Add component to the list
+                        components.add(component);
                     }
                 }
             }
 
-            // Check for duplicates in the components list
             Set<String> duplicates = new HashSet<>();
             Set<String> seen = new HashSet<>();
             for (String component : components) {
-                if (!seen.add(component)) { // If the component was already seen, it's a duplicate
+                if (!seen.add(component)) {
                     duplicates.add(component);
                 }
             }
 
-            // Print the duplicates if any
             if (!duplicates.isEmpty()) {
                 out.println("\n\n______ Found duplicate appfilter entries ______\n\n");
                 for (String duplicate : duplicates) {
@@ -165,38 +161,32 @@ public class Checks {
     public static boolean missingDrawable(String appfilterPath, String whiteDir, String otherDir) {
         List<Element> missingDrawables = new ArrayList<>();
         try {
-            // Set up XML parsing
             File inputFile = new File(appfilterPath);
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(inputFile);
             doc.getDocumentElement().normalize();
 
-            // Iterate through all <item> elements
             NodeList nodeList = doc.getElementsByTagName("item");
             for (int i = 0; i < nodeList.getLength(); i++) {
                 Node node = nodeList.item(i);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     Element item = (Element) node;
-                    // Check if 'prefix' attribute exists
                     if (item.getAttribute("prefix").isEmpty()) {
                         String drawable = item.getAttribute("drawable");
-                        // Check if the drawable file exists in the specified directories
                         Path whitePath = Paths.get(whiteDir, drawable + ".svg");
                         Path otherPath = Paths.get(otherDir, drawable + ".svg");
                         if (!Files.exists(whitePath) && !Files.exists(otherPath)) {
-                            missingDrawables.add(item); // Add item to the list if missing
+                            missingDrawables.add(item);
                         }
                     }
                 }
             }
 
-            // Print missing drawables if any
             if (!missingDrawables.isEmpty()) {
                 out.println("\n\n______ Found non existent drawables ______\n");
                 out.println("Possible causes are typos or completely different naming of the icon\n\n");
                 for (Element item : missingDrawables) {
-                    // Convert the element to a string and print it
                     String itemString = convertElementToString(item);
                     out.println(itemString);
                 }
@@ -210,7 +200,6 @@ public class Checks {
         return false;
     }
 
-    // Helper method to convert Element to String
     private static String convertElementToString(Element element) {
         try {
             StringWriter writer = new StringWriter();
@@ -229,43 +218,149 @@ public class Checks {
         Map<String, List<String>> strokeAttr = new HashMap<>();
 
         try {
-            // Get all SVG files in the specified directory
             File folder = new File(dir);
+            System.out.println("Processing SVG files in directory: " + folder.getAbsolutePath());
             File[] files = folder.listFiles((dir1, name) -> name.endsWith(".svg"));
             if (files != null) {
+                System.out.println("Found " + files.length + " SVG files.");
                 for (File file : files) {
                     String fileName = file.getName();
-                    String name = fileName.substring(0, fileName.length() - 4); // Remove .svg extension
-                    String content = FileUtils.readFileToString(file, "UTF-8");
-                    Pattern pattern = Pattern.compile("(?<strokestr>stroke-width(?:=\"|: ?))(?<number>\\d*(?:.\\d+)?)(?=[p\"; }/])");
-                    Matcher matcher = pattern.matcher(content);
+                    System.out.println("Processing file: " + fileName);
+                    String content = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+                    boolean modified = false; // Flag to track if content was modified
 
-                    // StringBuffer to accumulate the modified content
+                    // 1. Handle explicit stroke-width attributes
+                    Pattern explicitStrokeWidthPattern = Pattern.compile("(?<strokestr>stroke-width(?:=\"|: ?))(?<number>\\d*(?:.\\d+)?)(?=[p\"; }/])");
+                    Matcher explicitStrokeWidthMatcher = explicitStrokeWidthPattern.matcher(content);
                     StringBuilder result = new StringBuilder();
+                    while (explicitStrokeWidthMatcher.find()) {
+                        String replacement = replaceStroke(explicitStrokeWidthMatcher);
+                        explicitStrokeWidthMatcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+                        modified = true;
+                    }
+                    explicitStrokeWidthMatcher.appendTail(result);
+                    content = result.toString();
 
-                    while (matcher.find()) {
-                        // Get the stroke width value from the match
-                        String matchedStrokeWidth = matcher.group("number");
-                        // Process the match through replaceStroke
-                        String replacement = replaceStroke(matcher);
-                        // Append the replacement to the result
-                        matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+                    // 2. Handle stroke-width within <style> blocks (CSS)
+                    // This pattern captures the entire <style> block content.
+                    Pattern styleBlockPattern = Pattern.compile("<style>(.*?)</style>", Pattern.DOTALL);
+                    Matcher styleBlockMatcher = styleBlockPattern.matcher(content);
+                    StringBuilder updatedContentBuilder = new StringBuilder();
+
+                    boolean styleBlockFound = false;
+                    while (styleBlockMatcher.find()) {
+                        styleBlockFound = true;
+                        String styleContent = styleBlockMatcher.group(1); // The content inside <style>
+                        String modifiedStyleContent = styleContent;
+
+                        // Regex to find any CSS rule (selector { properties })
+                        Pattern anyCssRulePattern = Pattern.compile("([^\\{]+?\\{.*?\\})", Pattern.DOTALL); // Captures selector + block
+                        Matcher anyCssRuleMatcher = anyCssRulePattern.matcher(styleContent);
+                        StringBuilder tempStyleRulesBuilder = new StringBuilder();
+                        boolean ruleContentModified = false;
+
+                        while(anyCssRuleMatcher.find()){
+                            String fullRule = anyCssRuleMatcher.group(0); // e.g., ".cls-1{fill:none;stroke:#fff;stroke-linecap:round;stroke-linejoin:round}"
+
+                            // Extract the properties part (content inside the braces)
+                            Pattern propertiesPattern = Pattern.compile("\\{(.*?)\\}", Pattern.DOTALL);
+                            Matcher propertiesMatcher = propertiesPattern.matcher(fullRule);
+                            String propertiesContent = "";
+                            if (propertiesMatcher.find()) {
+                                propertiesContent = propertiesMatcher.group(1);
+                            } else {
+                                // Should not happen if fullRule came from anyCssRuleMatcher
+                                anyCssRuleMatcher.appendReplacement(tempStyleRulesBuilder, Matcher.quoteReplacement(fullRule));
+                                continue;
+                            }
+
+                            String newPropertiesContent = propertiesContent.trim(); // Trim to handle whitespace
+
+                            // First, add a semicolon if the last property doesn't have one
+                            if (!newPropertiesContent.isEmpty() && !newPropertiesContent.endsWith(";")) {
+                                newPropertiesContent += ";";
+                                ruleContentModified = true;
+                            }
+
+                            // Now, apply the stroke-width logic
+                            if (newPropertiesContent.contains("stroke-width:")) {
+                                // Replace existing stroke-width with 2
+                                newPropertiesContent = newPropertiesContent.replaceAll("stroke-width:\\s*\\d*\\.?\\d*(px)?;?", "stroke-width:2;");
+                                ruleContentModified = true;
+                            } else {
+                                // Add stroke-width:2; if not present
+                                if (newPropertiesContent.contains("stroke:")) {
+                                    // Insert stroke-width after stroke property or at end of properties
+                                    // This regex finds 'stroke:...' and inserts after its semicolon, or before the last char if no semicolon
+                                    Pattern strokePropInProperties = Pattern.compile("stroke:[^;]+;?");
+                                    Matcher strokePropMatcher = strokePropInProperties.matcher(newPropertiesContent);
+                                    if (strokePropMatcher.find()) {
+                                        String matchedStrokeProp = strokePropMatcher.group(0);
+                                        if (matchedStrokeProp.endsWith(";")) {
+                                            newPropertiesContent = newPropertiesContent.replace(matchedStrokeProp, matchedStrokeProp + "stroke-width:2;");
+                                        } else {
+                                            newPropertiesContent = newPropertiesContent.replace(matchedStrokeProp, matchedStrokeProp + ";stroke-width:2;");
+                                        }
+                                    } else {
+                                        // Fallback if stroke is present but not matched by above (e.g. no semicolon)
+                                        // Try to insert before the last semicolon or at the end
+                                        if (!newPropertiesContent.isEmpty()) {
+                                            // Find last semicolon and insert before it
+                                            int lastSemicolon = newPropertiesContent.lastIndexOf(';');
+                                            if (lastSemicolon != -1) {
+                                                newPropertiesContent = newPropertiesContent.substring(0, lastSemicolon) + "stroke-width:2;" + newPropertiesContent.substring(lastSemicolon);
+                                            } else {
+                                                // No semicolons at all, just append (should have been caught by the first semicolon fix)
+                                                newPropertiesContent += "stroke-width:2;";
+                                            }
+                                        } else {
+                                            newPropertiesContent += "stroke-width:2;"; // For empty rule blocks
+                                        }
+                                    }
+                                    ruleContentModified = true;
+                                } else {
+                                    // If 'stroke' property is also missing, add both stroke and stroke-width.
+                                    // Insert at the beginning of the properties content
+                                    newPropertiesContent = "stroke:#fff;stroke-width:2;" + newPropertiesContent;
+                                    ruleContentModified = true;
+                                }
+                            }
+
+                            // Reassemble the full rule
+                            String updatedFullRule = fullRule.replaceFirst("\\{.*?\\}", "{" + newPropertiesContent + "}");
+                            anyCssRuleMatcher.appendReplacement(tempStyleRulesBuilder, Matcher.quoteReplacement(updatedFullRule));
+                        }
+                        anyCssRuleMatcher.appendTail(tempStyleRulesBuilder);
+
+                        if (ruleContentModified) {
+                            modifiedStyleContent = tempStyleRulesBuilder.toString();
+                            modified = true; // Mark overall content as modified
+                        }
+
+                        // Replace the original <style> content with the modified one
+                        styleBlockMatcher.appendReplacement(updatedContentBuilder, Matcher.quoteReplacement("<style>" + modifiedStyleContent + "</style>"));
+                    }
+                    styleBlockMatcher.appendTail(updatedContentBuilder);
+
+                    if (styleBlockFound) {
+                        content = updatedContentBuilder.toString();
                     }
 
-                    // Append the remaining part of the string
-                    matcher.appendTail(result);
+                    // Only write if something was actually modified
+                    if (modified) {
+                        FileUtils.write(file, content, StandardCharsets.UTF_8);
+                        System.out.println("Modified SVG and fixed semicolon for: " + fileName);
+                    } else {
+                        System.out.println("No stroke-width or semicolon modification needed for: " + fileName);
+                    }
 
-                    // Convert result to string
-                    content = result.toString();
-                    // Perform regex checks on the SVG content
+                    // Perform regex checks on the SVG content (after modification)
                     checkAttributes(fileName, content, strokeAttr);
-                    // Write the updated content back to the file
-                    FileUtils.write(file, content, "UTF-8");
-
                 }
+            } else {
+                System.out.println("No SVG files found or directory is empty/invalid: " + folder.getAbsolutePath());
             }
 
-            // Print any findings
             if (!strokeAttr.isEmpty()) {
                 out.println("\n\n______ Found SVG with wrong line attributes ______\n");
                 for (String svg : strokeAttr.keySet()) {
@@ -275,11 +370,12 @@ public class Checks {
                     }
                 }
                 out.println("\n\n____ Please check these first before proceeding ____\n\n");
-                return true;
+                //return true;
             }
 
         } catch (IOException e) {
             e.printStackTrace();
+            return true; // Indicate failure
         }
         return false;
     }
@@ -296,7 +392,6 @@ public class Checks {
         Pattern lineCapPattern = Pattern.compile("stroke-linecap(?:=\"|:).*?(?=[\";}])");
         Pattern lineJoinPattern = Pattern.compile("stroke-linejoin(?:=\"|:).*?(?=[\";}])");
 
-        // Find matching attributes
         Matcher strokeColorMatcher = strokeColorPattern.matcher(content);
         Matcher fillColorMatcher = fillColorPattern.matcher(content);
         Matcher strokeOpacityMatcher = strokeOpacityPattern.matcher(content);
@@ -321,16 +416,15 @@ public class Checks {
                 "fill-opacity=\"100%", "fill-opacity:1", "fill-opacity:0"
         );
         List<String> validStrokeWidth = Arrays.asList(
-                "stroke-width:1","stroke-width:1px","stroke-width:0px",
-                "stroke-width:0","stroke-width=\"1","stroke-width=\"0",
-                "stroke-width: 0px", "stroke-width: 1px"
+                "stroke-width:2","stroke-width:2px","stroke-width:0px",
+                "stroke-width:0","stroke-width=\"2","stroke-width=\"0",
+                "stroke-width: 0px", "stroke-width: 2px"
         );
         List<String> validLineJoinCap = Arrays.asList(
                 "stroke-linejoin:round","stroke-linejoin=\"round","stroke-linejoin: round",
                 "stroke-linecap:round","stroke-linecap=\"round","stroke-linecap: round"
         );
 
-        // Check for stroke and fill colors
         checkAttributes(file, strokeColorMatcher, strokeAttr,validColors);
         checkAttributes(file, fillColorMatcher, strokeAttr,validColors);
         checkAttributes(file, strokeOpacityMatcher, strokeAttr,validOpacities);
@@ -345,7 +439,6 @@ public class Checks {
 
     }
 
-    // Helper method to check color attributes
     private static void checkAttributes(String file, Matcher matcher, Map<String, List<String>> strokeAttr,List <String> validAttributes) {
         while (matcher.find()) {
             String attr = matcher.group();
@@ -355,7 +448,6 @@ public class Checks {
         }
     }
 
-    // Helper method to check rgba attributes
     private static void checkRGBAAttributes(String file, Matcher matcher, Map<String, List<String>> strokeAttr) {
         while (matcher.find()) {
             String rgba = matcher.group();
@@ -365,39 +457,31 @@ public class Checks {
         }
     }
 
-    // Check if the RGBA is valid (specific checks for rgba(255,255,255) or opacity of 0 or 1)
     private static boolean isValidRGBA(String rgba) {
         return !(rgba.contains("rgba(255,255,255") || rgba.endsWith(",0)") || rgba.endsWith(",1)"));
     }
 
-    // Check if the attribute is valid (stroke-width, linecap, etc.)
     private static boolean isValidAttribute(String attribute, String attributeName) {
         if ("stroke-width".equals(attributeName)) {
-            return !attribute.equals("stroke-width:1") && !attribute.equals("stroke-width=0");
+            return !attribute.equals("stroke-width:2") && !attribute.equals("stroke-width=0");
         } else if ("stroke-linecap".equals(attributeName) || "stroke-linejoin".equals(attributeName)) {
             return attribute.equals("stroke-linecap: round") || attribute.equals("stroke-linejoin: round") ||attribute.equals("stroke-linecap:round") || attribute.equals("stroke-linejoin:round");
         }
         return true;
     }
 
-    // Add attribute to strokeAttr map
     private static void addToStrokeAttr(String file, String attribute, Map<String, List<String>> strokeAttr) {
         strokeAttr.computeIfAbsent(file, k -> new ArrayList<>()).add(attribute);
     }
 
-    // Helper method to replace stroke-width values
     private static String replaceStroke(Matcher matcher) {
         String strokeStr = matcher.group("strokestr");
         double strokeWidth = Double.parseDouble(matcher.group("number"));
 
-
-        if (strokeWidth > 0.9 && strokeWidth < 1.2) {
-            return strokeStr + "1";  // Append '1' to the stroke width
-        } else if (strokeWidth >= 0 && strokeWidth < 0.3) {
-            return strokeStr +"0";  // Append '0' to the stroke width
+        if (strokeWidth >= 0 && strokeWidth < 0.3) {
+            return strokeStr + "0";
         } else {
-            return strokeStr + matcher.group("number");  // No change to the stroke width
+            return strokeStr + "2";
         }
     }
-
 }
